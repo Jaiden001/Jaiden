@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>仿音乐列表拖动-变化排序</title>
+</head>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  .container {
+    position: relative;
+    width: 500px;
+    margin: 50px auto;
+  }
+  ul {
+    position: relative;
+    display: block;
+    padding: 0 10px;
+    border: 2px solid #ddd;
+  }
+  ul li {
+    display: flex;
+    align-items: center;
+    height: 50px;
+    line-height: 50px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+  }
+  ul li .m {
+    margin-left: 30px;
+    color: #929292;
+  }
+  ul li .t {
+    flex: 1;
+    width: 100%;
+    text-align: right;
+  }
+  ul li:last-child {
+    border-bottom: 0px none;
+  }
+  .icon {
+    position: absolute;
+    left: -10000px;
+    top: -10000px;
+  }
+  .remove {
+    position: absolute;
+    right: -80px;
+    top: 0;
+    width: 50px;
+    height: 50px;
+  }
+</style>
+
+<body>
+  <div class='container'>
+    <!-- <div class='title'>我的音乐列表</div> -->
+    <ul>
+      <li draggable="true">1.Fa♂de <span class='m'>- 兄贵</span><span class='t'>04:30</span></li>
+      <li draggable="true">2.【哲学】seve♂ <span class='m'>- 喵喵帕帕斯</span></span><span class='t'>02:10</span></li>
+      <li draggable="true">3.痒♂ <span class='m'>- View喵</span><span class='t'>02:31</span></li>
+      <li draggable="true">4.老♂男孩 <span class='m'>- LPY/白菜炖水果</span><span class='t'>05:11</span></li>
+      <li draggable="true">5.The Ocean <span class='m'>- 兄贵</span><span class='t'>04:00</span></li>
+    </ul>
+
+    <img class='icon' src="music.png">
+
+    <!-- <div class='title'>我的收藏</div> -->
+    <div class='remove'><img class='remove' src="remove.png"/></div>
+  </div>
+  <script>
+    window.onload = function () {
+      let oul = document.querySelector('ul');
+      let ali = document.querySelectorAll('li');
+      let oicon = document.querySelector('.icon');
+      let oremove = document.querySelector('.remove');
+
+      for (let i = 0; i < ali.length; i++) {
+        ali[i].index = i
+        ali[i].ondragstart = function (ev) {
+          // 记录拖动的下标
+          ev.dataTransfer.setData('sourceIndex', this.index)
+          // 修改拖动图标
+          ev.dataTransfer.setDragImage(oicon, 10, 10)
+        }
+        ali[i].ondragsend = function () {
+          console.log('2')
+        }
+        ali[i].ondragover = function (ev) {
+          ev.preventDefault()
+        }
+        ali[i].ondrop = function (ev) {
+          // 获取插入节点的下标和插入节点
+          let sourceIndex = ev.dataTransfer.getData('sourceIndex')
+          let insertLi = ali[sourceIndex]
+          // 插入节点
+          let dropTop = ev.pageY - resetOffsetTop(oul)
+          let choutN = this.offsetTop + this.offsetHeight / 2
+          console.log('鼠标点:' + dropTop, '抬起对象' + choutN)
+          // 判断是在上面插入还是下面插入
+          if (dropTop < choutN) {
+            console.log(1)
+            oul.insertBefore(insertLi, this)
+          } else {
+            console.log(2)
+            insertAfter(insertLi, this)
+          }
+          for (let i = 0; i < ali.length; i++) {
+            ali[i].index = i
+          }
+        }
+      }
+
+      // 删除
+      oremove.ondragover = function (ev) {
+        ev.preventDefault()
+      }
+      oremove.ondrop = function (ev) {
+        let sourceIndex = ev.dataTransfer.getData('sourceIndex')
+        let insertLi = ali[sourceIndex]
+        
+        oul.removeChild(insertLi)
+        for (let i = 0; i < ali.length; i++) {
+          ali[i].index = i
+        }
+      }
+
+      // 自定义函数节点向后插入
+      function insertAfter (newNode, targetNode) {
+        let parent = targetNode.parentNode;
+        if (parent == parent.lastChild) {
+          parent.appentChild(newNode)
+        } else {
+          parent.insertBefore(newNode, targetNode.nextSibling)
+        }
+      }
+
+      function resetOffsetTop (element) {
+        let top = element.offsetTop
+        let elParent = element.offsetParent
+        while (elParent != null) {
+          top += elParent.offsetTop
+          elParent = elParent.offsetParent
+        }
+        return top
+      }
+    }
+  </script>
+</body>
+</html>
