@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>方块移动</title>
+</head>
+
+<style>
+  body {
+    padding: 50px;
+    margin: 0;
+    background: #eee;
+  }
+  .container {
+    width: 500px;
+    margin: 0 auto;
+  }
+  canvas {
+    background: #fff;
+  }
+</style>
+
+<body>
+  <div class="container">
+
+    <canvas id="canvas" width="500" height="500"></canvas>
+
+    <script>
+      window.onload = function () {
+        var oc = document.getElementById('canvas')
+        var occ = oc.getContext('2d')
+        
+        var cx = 1, cy = 1, rx = 0, ry = 100
+        var ocH = oc.height, ocW = oc.width
+        setInterval(function () {
+          // 清楚画布
+          occ.clearRect(rx, ry, 100, 100)
+          // 计算是否溢出
+          if (rx + 100 >= ocH || rx + cx < 0) {
+            cx = -cx
+          }
+          if (ry + 100 >= ocW || ry + cy < 0) {
+            cy = -cy
+          }
+
+          // 执行动画
+          rx = rx + cx
+          ry = ry + cy
+          occ.fillRect(rx, ry, 100, 100)
+        }, 10)
+        
+      }
+    </script>
+
+  </div>
+</body>
+</html>

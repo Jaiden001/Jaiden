@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>签名板</title>
+</head>
+<style>
+  body {
+    padding: 50px;
+    margin: 0;
+    background: #eee;
+  }
+  .container {
+    position: relative;
+    width: 600px;
+    margin: 0 auto;
+  }
+  .t {
+    margin-bottom:  40px;
+    font-size: 18px;
+    text-align: center;
+  }
+  canvas {
+    background: #fff;
+  }
+</style>
+<body>
+  <div class='container'>
+    <div class='t'>请在白色区域签上您的大名</div>
+    <canvas id='myCv' width="600" height="400"></canvas>
+
+    <script>
+      window.onload = function () {
+        let oc = document.getElementById('myCv')
+        let occ = oc.getContext('2d')
+        // 鼠标按下
+        oc.onmousedown = function (ev) {
+          occ.beginPath()
+          // 鼠标移动
+          oc.onmousemove = function (ev) {
+            // 计算绘制的x,y轴
+            let x = ev.clientX - (resetOffset(oc, 'left') - document.documentElement.scrollLeft)
+            let y = ev.clientY - (resetOffset(oc, 'top') - document.documentElement.scrollTop)
+            // 绘制
+            occ.lineTo(x, y)
+            occ.stroke()
+          }
+          // 鼠标抬起 结束绘制
+          document.onmouseup = function () {
+            occ.closePath()
+            oc.onmousemove = null
+            document.onmouseup = null
+          }
+        }
+
+        function resetOffset (element, oriented) {
+          if (!element) {
+            return false
+          }
+          let or = ''
+          if (oriented == 'top') {
+            or = 'offsetTop'
+          } else if (oriented == 'left') {
+            or = 'offsetLeft'
+          } else {
+            or = 'offsetTop'
+          }
+          let n = element[or]
+          let elParent = element.offsetParent
+          while (elParent != null) {
+            n += elParent[or]
+            elParent = elParent.offsetParent
+          }
+          return n
+        }
+      }
+    </script>
+  </div>
+</body>
+</html>
