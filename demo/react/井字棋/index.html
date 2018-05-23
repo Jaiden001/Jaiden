@@ -15,22 +15,34 @@
   <div id="example"></div>
 
   <script type="text/babel">
-    class Square extends React.Component {
-      render () {
-        return (
-          <div className='square'>
-            {/*TODO*/}
-          </div>
-        )
-      }
+    function Square (props) {
+      return (
+        <div className='square' onClick={props.onClick}> 
+          {props.value}
+        </div>
+      )
     }
 
     class Board extends React.Component {
-      const status = '下一个标记 X'
       renderSquare (i) {
-        return <Square/>
+        const squares = this.props.squares
+        return <Square
+          value = {squares[i]}
+          onClick = {() => {this.props.onClick(i)}}
+        />
       }
+
       render () {
+        const squares = this.props.squares
+        const xIsNext = this.props.xIsNext
+        const winner = calculateWinner(squares)
+        const player = xIsNext ? 'x' : 'o'
+        let status
+        if (winner) {
+          status = '游戏胜利者：[' + player + ']'
+        } else {
+          status = '下一个：[' + player + ']'
+        }
         return (
           <div>
             <div className='status'>{status}</div>
@@ -53,6 +65,115 @@
         )
       }
     }
+
+    class Game extends React.Component {
+      constructor () {
+        super(),
+        this.state = {
+          history: [
+            {
+              squares: new Array(9).fill(null),
+              xIsNext: true
+            }
+          ],
+          pointer: 0
+        }
+      }
+
+      handleClick (i) {
+        let pointer = this.state.pointer
+        let history = this.state.history.slice()
+        const current = history[pointer]
+        const squares = current.squares.slice()
+        const xIsNext = current.xIsNext
+        if (calculateWinner(squares) || squares[i]) {
+          return
+        }
+        
+        squares[i] = xIsNext ? 'x' : 'o'
+        
+        if (pointer < history.length - 1) {
+          history = history.slice(0, pointer + 1)
+        }
+        let pushData = {
+          squares,
+          xIsNext: !xIsNext
+        }
+        this.setState({
+          history: history.concat(pushData),
+          pointer: pointer + 1
+        }) 
+      }
+
+      jumpTo (i) {
+        // let pointer = this.state.pointer
+        this.setState({
+          pointer: i
+        })
+      }
+      
+      render () {
+        let pointer = this.state.pointer
+        const history = this.state.history
+        const current = history[pointer]
+
+        const moveList = history.map((todo, index) => {
+          const desc = index ?
+            '跳到第' + index + '步' :
+            '跳到开始'
+          return (
+            <li key={index}>
+              <button onClick={() => this.jumpTo(index)}>{desc}</button>
+            </li>
+          )
+        })
+        return (
+          <div className="game">
+            <div className="game-board">
+              <Board
+                squares={current.squares}
+                xIsNext={current.xIsNext}
+                onClick={(i) => this.handleClick(i)}
+              />
+            </div>
+            <div className="game-info">
+              <div>{/* status */}</div>
+              <ol>{moveList}</ol>
+            </div>
+          </div>
+        );
+      }
+    }
+
+    /*==========================================*/
+
+    ReactDOM.render(
+      <Game/>,
+      document.getElementById('example')
+    )
+
+    /*===========================================*/
+
+    function calculateWinner (squares) {
+      const lines = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+      for (let i = 0; i < lines.length; i++) {
+        const [a, b, c] = lines[i];
+        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+          return squares[a];
+        }
+      }
+      return null;
+    }
+
   </script>
 </body>
 </html>
